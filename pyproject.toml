@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentbeats-orchestrator"
+version = "0.1.0"
+description = "Thin Purple runtime and MCU benchmark orchestration layer"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "numpy",
+  "pydantic>=2",
+  "Pillow",
+  "PyYAML",
+]
+
+[project.optional-dependencies]
+benchmark = [
+  "minestudio",
+  "torch",
+]
+openha = [
+  "openagents",
+]
+optimus3 = [
+  "minecraftoptimus",
+]
+dev = [
+  "pytest",
+  "ruff",
+]
+
+[project.scripts]
+agentbeats-mcu-benchmark = "agentbeats_orchestrator.cli.run_mcu_benchmark:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentbeats_orchestrator"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

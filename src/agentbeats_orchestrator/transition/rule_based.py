@@ -15,9 +15,12 @@ class RuleBasedTransitionPolicy(TransitionPolicy):
         failure_memory: FailureMemory,
     ) -> TransitionResult:
         no_progress = runtime_memory.no_progress_streak()
+        subgoal_failures = failure_memory.total_failures(state.current_subgoal_index)
 
         if evaluation.progress_score >= 0.5:
             return TransitionResult(decision=Decision.KEEP, reason="progress_ok")
+        if subgoal_failures >= 3 and no_progress >= 10:
+            return TransitionResult(decision=Decision.REPLAN, reason="repeated_subgoal_failures")
         if no_progress >= 12 and state.current_subgoal_index + 1 < len(state.subgoals):
             return TransitionResult(
                 decision=Decision.SWITCH_SUBGOAL,

@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from agentbeats_orchestrator.actor.openha_adapter import OpenHAActorAdapter
+from agentbeats_orchestrator.actor.openha_adapter import OpenHAEnvActorAdapter
 from agentbeats_orchestrator.benchmark.runner import run_benchmark
 from agentbeats_orchestrator.evaluator.heuristic import HeuristicEvaluator
 from agentbeats_orchestrator.planner.trivial import TrivialPlanner
@@ -39,7 +39,13 @@ def make_runtime_factory(args):
         openha_agent = build_openha_agent(args)
         return PurpleRuntime(
             planner=TrivialPlanner(),
-            actor=OpenHAActorAdapter(openha_agent=openha_agent),
+            actor=OpenHAEnvActorAdapter(
+                openha_agent=openha_agent,
+                instruction_mode=args.instruction_mode,
+                include_recover_hint=not args.disable_recover_hint,
+                reset_on_subgoal_switch=args.reset_on_subgoal_switch,
+                verbose=args.actor_verbose,
+            ),
             evaluator=HeuristicEvaluator(),
             transition_policy=RuleBasedTransitionPolicy(),
         )
@@ -73,6 +79,14 @@ def main():
     parser.add_argument("--maximum-history-length", type=int, default=15)
     parser.add_argument("--temperature", type=float, default=0.5)
     parser.add_argument("--max-tokens", type=int, default=512)
+    parser.add_argument(
+        "--instruction-mode",
+        default="task_and_subgoal",
+        choices=["task_only", "subgoal_only", "task_and_subgoal"],
+    )
+    parser.add_argument("--disable-recover-hint", action="store_true")
+    parser.add_argument("--reset-on-subgoal-switch", action="store_true")
+    parser.add_argument("--actor-verbose", action="store_true")
 
     args = parser.parse_args()
     results = run_benchmark(

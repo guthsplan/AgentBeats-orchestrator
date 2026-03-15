@@ -34,12 +34,17 @@ def run_single_task(
     steps: list[dict] = []
 
     while not done and step < max_steps:
-        env_action, transition, state = runtime.step(obs["image"], state)
+        env_action = runtime.act(obs["image"], state)
         obs, reward, terminated, truncated, info = env.step(env_action)
         done = terminated or truncated
         total_reward += reward
+        transition, state = runtime.update(
+            frame=obs["image"],
+            reward=float(reward),
+            done=done,
+            state=state,
+        )
         step += 1
-        runtime.record_env_feedback(reward=reward, done=done)
         steps.append(
             {
                 "step": step,

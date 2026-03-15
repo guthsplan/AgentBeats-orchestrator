@@ -31,6 +31,26 @@ class ObservationSummary:
 
 
 @dataclass
+class InventorySnapshot:
+    items: dict[str, int]
+    timestamp: int
+    confidence: float
+
+
+@dataclass
+class ToolSnapshot:
+    equipped_item: str | None = None
+    timestamp: int = 0
+    confidence: float = 0.0
+
+
+@dataclass
+class StateCache:
+    inventory: InventorySnapshot | None = None
+    tool: ToolSnapshot | None = None
+
+
+@dataclass
 class EvaluationResult:
     progress_score: float
     status: str
@@ -54,12 +74,20 @@ class ExecutionResult:
 
 
 @dataclass
+class PendingAction:
+    step_index: int
+    subgoal_index: int
+    execution: ExecutionResult
+
+
+@dataclass
 class RuntimeState:
     task_text: str
     subgoals: list[Subgoal]
     current_subgoal_index: int = 0
     step_index: int = 0
     recover_mode: bool = False
+    state_cache: StateCache = field(default_factory=StateCache)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @property

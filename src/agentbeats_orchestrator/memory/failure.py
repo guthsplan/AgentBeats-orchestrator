@@ -23,3 +23,16 @@ class FailureMemory:
 
     def query(self, subgoal_index: int) -> list[FailurePattern]:
         return [pattern for pattern in self.patterns if pattern.subgoal_index == subgoal_index]
+
+    def total_failures(self, subgoal_index: int | None = None) -> int:
+        patterns = self.patterns if subgoal_index is None else self.query(subgoal_index)
+        return sum(pattern.count for pattern in patterns)
+
+    def as_prompt_context(self, subgoal_index: int | None = None) -> str:
+        patterns = self.patterns if subgoal_index is None else self.query(subgoal_index)
+        if not patterns:
+            return ""
+        return "\n".join(
+            f"- {pattern.summary} (count={pattern.count})"
+            for pattern in patterns
+        )

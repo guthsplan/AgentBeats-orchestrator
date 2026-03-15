@@ -4,8 +4,27 @@ from agentbeats_orchestrator.memory.runtime import RuntimeMemory
 from agentbeats_orchestrator.types import RuntimeState
 
 
-def detect_events(state: RuntimeState, runtime_memory: RuntimeMemory) -> list[dict]:
+def detect_events(state: RuntimeState, runtime_memory: RuntimeMemory, reward: float, done: bool) -> list[dict]:
     events: list[dict] = []
+    if reward > 0:
+        events.append(
+            {
+                "kind": "reward_progress",
+                "summary": "Environment returned positive reward after the last action.",
+                "subgoal_index": state.current_subgoal_index,
+                "step_index": state.step_index,
+                "reward": reward,
+            }
+        )
+    if done:
+        events.append(
+            {
+                "kind": "episode_done",
+                "summary": "Episode terminated after the last action.",
+                "subgoal_index": state.current_subgoal_index,
+                "step_index": state.step_index,
+            }
+        )
     if runtime_memory.no_progress_streak() >= 8:
         events.append(
             {

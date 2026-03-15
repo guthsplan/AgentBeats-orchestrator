@@ -16,3 +16,7 @@ class Actor(ABC):
     @abstractmethod
     def act(self, frame: np.ndarray, state: RuntimeState) -> dict[str, Any]:
         raise NotImplementedError
+
+    def on_transition(self, state: RuntimeState) -> None:
+        """Optional hook for actors that need to react to state changes."""
+        return None
